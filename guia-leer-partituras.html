@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leer Partituras — Guía Visual Interactiva</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6f0;
+    --bg2: #f3ede4;
+    --surface: #fff;
+    --ink: #1a1714;
+    --ink2: #5c554a;
+    --ink3: #9e958a;
+    --accent: #c24d2c;
+    --accent2: #2c6e8c;
+    --accent3: #6b5b3e;
+    --staff-line: #bdb4a7;
+    --note-fill: #1a1714;
+    --highlight-bg: rgba(194,77,44,0.07);
+    --shadow: 0 2px 20px rgba(26,23,20,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(194,77,44,0.15); }
+
+  /* === HEADER === */
+  header {
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+  }
+
+  .staff-deco {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 700px;
+    opacity: 0.04;
+  }
+
+  .staff-deco line {
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+
+  header .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  header .lead {
+    font-size: 1.1rem;
+    color: var(--ink2);
+    max-width: 520px;
+    margin: 0 auto;
+    position: relative;
+    font-weight: 300;
+  }
+
+  /* === NAV === */
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,246,240,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(189,180,167,0.3);
+    padding: 0 2rem;
+    overflow-x: auto;
+  }
+
+  .toc-inner {
+    display: flex;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .toc a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    text-decoration: none;
+    padding: 1rem 1.2rem;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.25s;
+  }
+
+  .toc a:hover, .toc a.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* === CONTENT === */
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section {
+    padding: 5rem 0 3rem;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+
+  section.visible { opacity: 1; transform: none; }
+
+  .sec-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(194,77,44,0.2), transparent);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+
+  p { color: var(--ink2); margin-bottom: 1.2rem; font-size: 1.02rem; }
+  p strong { color: var(--ink); font-weight: 500; }
+
+  .callout {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--accent);
+    padding: 1.5rem 1.8rem;
+    border-radius: 0 10px 10px 0;
+    margin: 2rem 0;
+    font-style: italic;
+    color: var(--ink2);
+  }
+
+  .callout strong { color: var(--accent); font-style: normal; }
+
+  /* === SVG MUSIC SHEETS === */
+  .music-sheet {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 2rem 2rem 1.5rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    border: 1px solid rgba(189,180,167,0.2);
+  }
+
+  .music-sheet svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  .sheet-caption {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--ink3);
+    text-align: center;
+    margin-top: 1rem;
+    text-transform: uppercase;
+  }
+
+  /* === INTERACTIVE NOTE EXPLORER === */
+  .note-explorer {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 2.5rem;
+    margin: 2.5rem 0;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.2);
+  }
+
+  .explorer-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1.5rem;
+  }
+
+  .note-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .note-tab {
+    background: var(--bg2);
+    border: 1px solid rgba(189,180,167,0.3);
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink2);
+  }
+
+  .note-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .note-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .note-display {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .note-visual {
+    flex: 0 0 auto;
+  }
+
+  .note-info h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .note-info .duration {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  .note-info p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+
+  .beat-vis {
+    display: flex;
+    gap: 6px;
+    margin-top: 1rem;
+  }
+
+  .beat-block {
+    width: 36px;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--bg2);
+    border: 1px solid rgba(189,180,167,0.3);
+    transition: all 0.3s;
+  }
+
+  .beat-block.filled {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .beat-block.half-filled {
+    background: linear-gradient(90deg, var(--accent) 50%, var(--bg2) 50%);
+    border-color: var(--accent);
+  }
+
+  /* === CLEF CARDS === */
+  .clef-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .clef-card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.15);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .clef-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(26,23,20,0.1);
+  }
+
+  .clef-symbol {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    color: var(--ink);
+  }
+
+  .clef-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .clef-card .range {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+
+  .clef-card p { font-size: 0.9rem; margin-bottom: 0; }
+
+  /* === INTERACTIVE STAFF === */
+  .staff-interact {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 2.5rem;
+    margin: 2.5rem 0;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.2);
+  }
+
+  .staff-interact svg { cursor: pointer; display: block; margin: 0 auto; }
+
+  .staff-note-label {
+    font-family: 'DM Mono', monospace;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--accent);
+    min-height: 1.5em;
+    transition: all 0.3s;
+  }
+
+  .staff-hint {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--ink3);
+    margin-top: 0.5rem;
+  }
+
+  /* === TIME SIGNATURE === */
+  .ts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.2rem;
+    margin: 2rem 0;
+  }
+
+  .ts-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.8rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    border: 1px solid rgba(189,180,167,0.15);
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+
+  .ts-card:hover { transform: translateY(-3px); }
+  .ts-card.ts-active { border-color: var(--accent); }
+
+  .ts-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .ts-line {
+    width: 30px;
+    height: 2px;
+    background: var(--staff-line);
+    margin: 0.3rem auto;
+  }
+
+  .ts-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--ink3);
+    margin-top: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .ts-desc {
+    font-size: 0.85rem;
+    color: var(--ink2);
+    margin-top: 0.5rem;
+    line-height: 1.5;
+  }
+
+  /* === DYNAMICS === */
+  .dynamics-row {
+    display: flex;
+    align-items: stretch;
+    margin: 2rem 0;
+    background: var(--surface);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.15);
+  }
+
+  .dyn-item {
+    flex: 1;
+    padding: 1.8rem 1rem;
+    text-align: center;
+    border-right: 1px solid rgba(189,180,167,0.15);
+    transition: background 0.2s;
+    cursor: default;
+    position: relative;
+  }
+
+  .dyn-item:last-child { border-right: none; }
+
+  .dyn-item:hover { background: var(--highlight-bg); }
+
+  .dyn-symbol {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.8rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .dyn-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--ink3);
+    text-transform: uppercase;
+  }
+
+  .dyn-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg2);
+    border-radius: 2px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+  }
+
+  .dyn-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* === KEY SIG EXPLORER === */
+  .keysig-container {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 2.5rem;
+    margin: 2.5rem 0;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.2);
+  }
+
+  .keysig-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+  }
+
+  .ks-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(189,180,167,0.3);
+    background: var(--bg2);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ks-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .ks-btn.ks-active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+
+  .keysig-info {
+    text-align: center;
+  }
+
+  .keysig-info h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .keysig-detail {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent2);
+    margin-bottom: 0.5rem;
+  }
+
+  /* === QUIZ === */
+  .quiz-box {
+    background: linear-gradient(135deg, var(--surface), var(--bg2));
+    border-radius: 14px;
+    padding: 2.5rem;
+    margin: 2.5rem 0;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(189,180,167,0.2);
+    text-align: center;
+  }
+
+  .quiz-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-opt {
+    padding: 0.7rem 1.5rem;
+    border: 1px solid rgba(189,180,167,0.3);
+    border-radius: 30px;
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--ink2);
+  }
+
+  .quiz-opt:hover { border-color: var(--accent2); color: var(--accent2); }
+  .quiz-opt.correct { background: #2a7d4f; color: #fff; border-color: #2a7d4f; }
+  .quiz-opt.wrong { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .quiz-opt.disabled { pointer-events: none; opacity: 0.5; }
+
+  .quiz-feedback {
+    font-size: 0.95rem;
+    color: var(--ink2);
+    min-height: 1.5em;
+  }
+
+  .quiz-next {
+    margin-top: 1rem;
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 30px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: none;
+    transition: background 0.2s;
+  }
+
+  .quiz-next:hover { background: #245c75; }
+
+  .quiz-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink3);
+    margin-top: 0.75rem;
+  }
+
+  /* === FOOTER === */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(189,180,167,0.2);
+    margin-top: 3rem;
+  }
+
+  footer p {
+    font-size: 0.85rem;
+    color: var(--ink3);
+  }
+
+  footer .sig {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--ink2);
+    margin-bottom: 0.5rem;
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 640px) {
+    .dynamics-row { flex-wrap: wrap; }
+    .dyn-item { flex: 0 0 33.33%; border-bottom: 1px solid rgba(189,180,167,0.15); }
+    .note-display { flex-direction: column; align-items: flex-start; }
+    .toc-inner { gap: 0; }
+    .toc a { padding: 0.8rem 0.8rem; font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <svg class="staff-deco" viewBox="0 0 700 100">
+    <line x1="0" y1="20" x2="700" y2="20"/>
+    <line x1="0" y1="35" x2="700" y2="35"/>
+    <line x1="0" y1="50" x2="700" y2="50"/>
+    <line x1="0" y1="65" x2="700" y2="65"/>
+    <line x1="0" y1="80" x2="700" y2="80"/>
+  </svg>
+  <div class="tag">Guía visual interactiva</div>
+  <h1>Cómo leer<br><em>partituras</em></h1>
+  <p class="lead">Todo lo que necesitás saber para descifrar la notación musical, desde el pentagrama hasta las dinámicas.</p>
+</header>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#pentagrama" class="active">Pentagrama</a>
+    <a href="#claves">Claves</a>
+    <a href="#notas">Notas</a>
+    <a href="#figuras">Figuras</a>
+    <a href="#compas">Compás</a>
+    <a href="#alteraciones">Alteraciones</a>
+    <a href="#armadura">Armadura</a>
+    <a href="#dinamicas">Dinámicas</a>
+    <a href="#quiz">Quiz</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- 1. PENTAGRAMA -->
+  <section id="pentagrama">
+    <div class="sec-label">01 — Fundamentos</div>
+    <h2>El Pentagrama</h2>
+    <p>Todo empieza con <strong>cinco líneas horizontales</strong> y los cuatro espacios entre ellas. Este conjunto se llama <strong>pentagrama</strong>, y es el lienzo donde vive la música escrita. Cada línea y cada espacio representan una nota distinta.</p>
+    <p>Las notas más <strong>agudas</strong> se ubican más arriba, y las más <strong>graves</strong> más abajo. Si una nota es tan aguda o grave que no cabe, se usan <strong>líneas adicionales</strong> por encima o por debajo.</p>
+
+    <div class="music-sheet">
+      <svg viewBox="0 0 600 160" width="600">
+        <!-- Staff lines -->
+        <g stroke="#bdb4a7" stroke-width="1">
+          <line x1="30" y1="40" x2="570" y2="40"/>
+          <line x1="30" y1="55" x2="570" y2="55"/>
+          <line x1="30" y1="70" x2="570" y2="70"/>
+          <line x1="30" y1="85" x2="570" y2="85"/>
+          <line x1="30" y1="100" x2="570" y2="100"/>
+        </g>
+        <!-- Labels -->
+        <text x="580" y="44" font-family="DM Mono" font-size="9" fill="#9e958a">F5</text>
+        <text x="580" y="59" font-family="DM Mono" font-size="9" fill="#9e958a">D5</text>
+        <text x="580" y="74" font-family="DM Mono" font-size="9" fill="#9e958a">B4</text>
+        <text x="580" y="89" font-family="DM Mono" font-size="9" fill="#9e958a">G4</text>
+        <text x="580" y="104" font-family="DM Mono" font-size="9" fill="#9e958a">E4</text>
+        <!-- Space labels -->
+        <text x="8" y="51" font-family="DM Mono" font-size="8" fill="#c24d2c">E5</text>
+        <text x="8" y="66" font-family="DM Mono" font-size="8" fill="#c24d2c">C5</text>
+        <text x="8" y="81" font-family="DM Mono" font-size="8" fill="#c24d2c">A4</text>
+        <text x="8" y="96" font-family="DM Mono" font-size="8" fill="#c24d2c">F4</text>
+        <!-- Arrows -->
+        <text x="300" y="25" font-family="DM Sans" font-size="10" fill="#5c554a" text-anchor="middle">↑ Más agudo</text>
+        <text x="300" y="125" font-family="DM Sans" font-size="10" fill="#5c554a" text-anchor="middle">↓ Más grave</text>
+        <!-- Ledger line example -->
+        <line x1="445" y1="115" x2="485" y2="115" stroke="#bdb4a7" stroke-width="1"/>
+        <ellipse cx="465" cy="115" rx="8" ry="6" fill="#1a1714"/>
+        <text x="465" y="140" font-family="DM Mono" font-size="8" fill="#2c6e8c" text-anchor="middle">C4 (Do central)</text>
+        <text x="465" y="150" font-family="DM Mono" font-size="7" fill="#9e958a" text-anchor="middle">línea adicional</text>
+      </svg>
+      <div class="sheet-caption">Pentagrama en clave de Sol — notas en líneas (gris) y espacios (rojo)</div>
+    </div>
+
+    <div class="callout">
+      <strong>Truco mnemotécnico:</strong> En clave de Sol, las líneas de abajo a arriba son Mi-Sol-Si-Re-Fa, y los espacios Fa-La-Do-Mi. En muchos países se usa "Every Good Boy Does Fine" / "FACE".
+    </div>
+  </section>
+
+  <!-- 2. CLAVES -->
+  <section id="claves">
+    <div class="sec-label">02 — Claves</div>
+    <h2>Las Claves</h2>
+    <p>La clave es el símbolo al inicio del pentagrama que define <strong>qué nota corresponde a cada línea</strong>. Sin ella, las cinco líneas no significan nada. Las dos más comunes son la clave de Sol y la de Fa.</p>
+
+    <div class="clef-grid">
+      <div class="clef-card">
+        <div class="clef-symbol">𝄞</div>
+        <h3>Clave de Sol</h3>
+        <div class="range">Rango: C4 — A5+</div>
+        <p>Para notas agudas. Se enrolla sobre la 2da línea (Sol). Usada por piano (mano derecha), guitarra, violín, flauta, voz.</p>
+      </div>
+      <div class="clef-card">
+        <div class="clef-symbol">𝄢</div>
+        <h3>Clave de Fa</h3>
+        <div class="range">Rango: E2 — G3+</div>
+        <p>Para notas graves. Los dos puntos rodean la 4ta línea (Fa). Usada por piano (mano izquierda), cello, bajo, trombón.</p>
+      </div>
+    </div>
+
+    <p>Cuando leas una partitura de piano, verás <strong>dos pentagramas unidos</strong> con una llave: el de arriba en clave de Sol (mano derecha) y el de abajo en clave de Fa (mano izquierda). A esto se le llama <strong>sistema</strong> o <strong>gran pentagrama</strong>.</p>
+  </section>
+
+  <!-- 3. NOTAS INTERACTIVAS -->
+  <section id="notas">
+    <div class="sec-label">03 — Notas en el pentagrama</div>
+    <h2>Tocá el pentagrama</h2>
+    <p>Hacé clic en cualquier posición del pentagrama para ver qué nota es. Cada línea y espacio tiene una nota asignada.</p>
+
+    <div class="staff-interact">
+      <div class="explorer-title">Pentagrama interactivo — Clave de Sol</div>
+      <svg id="interactiveStaff" viewBox="0 0 600 160" width="600" style="max-width:100%;">
+        <!-- Clef -->
+        <text x="40" y="82" font-size="48" fill="#1a1714" font-family="serif">𝄞</text>
+        <!-- Staff -->
+        <g stroke="#bdb4a7" stroke-width="1">
+          <line x1="30" y1="40" x2="570" y2="40"/>
+          <line x1="30" y1="55" x2="570" y2="55"/>
+          <line x1="30" y1="70" x2="570" y2="70"/>
+          <line x1="30" y1="85" x2="570" y2="85"/>
+          <line x1="30" y1="100" x2="570" y2="100"/>
+        </g>
+        <!-- Ledger lines (hidden, shown on hover) -->
+        <line id="ledgerAbove2" x1="270" y1="10" x2="330" y2="10" stroke="#bdb4a7" stroke-width="1" opacity="0"/>
+        <line id="ledgerAbove" x1="270" y1="25" x2="330" y2="25" stroke="#bdb4a7" stroke-width="1" opacity="0"/>
+        <line id="ledgerBelow" x1="270" y1="115" x2="330" y2="115" stroke="#bdb4a7" stroke-width="1" opacity="0"/>
+        <line id="ledgerBelow2" x1="270" y1="130" x2="330" y2="130" stroke="#bdb4a7" stroke-width="1" opacity="0"/>
+        <!-- Clickable area -->
+        <rect x="80" y="5" width="490" height="150" fill="transparent" id="staffClickArea"/>
+        <!-- Note indicator -->
+        <ellipse id="staffNote" cx="300" cy="70" rx="9" ry="7" fill="#c24d2c" opacity="0"/>
+      </svg>
+      <div class="staff-note-label" id="staffNoteLabel">—</div>
+      <div class="staff-hint">Hacé clic en el pentagrama para identificar las notas</div>
+    </div>
+  </section>
+
+  <!-- 4. FIGURAS MUSICALES -->
+  <section id="figuras">
+    <div class="sec-label">04 — Figuras rítmicas</div>
+    <h2>Figuras y Silencios</h2>
+    <p>Cada figura musical determina <strong>cuánto tiempo dura una nota</strong>. La redonda dura 4 tiempos, y cada figura siguiente vale la mitad de la anterior. Los silencios indican lo mismo, pero sin sonido.</p>
+
+    <div class="note-explorer" id="noteExplorer">
+      <div class="explorer-title">Explorador de figuras</div>
+      <div class="note-tabs" id="noteTabs"></div>
+      <div class="note-display">
+        <div class="note-visual" id="noteVisual"></div>
+        <div class="note-info">
+          <h3 id="noteName">Redonda</h3>
+          <div class="duration" id="noteDuration">4 tiempos</div>
+          <p id="noteDesc">La más larga en uso común. La cabeza es hueca y no tiene plica (tallo).</p>
+          <div class="beat-vis" id="beatVis"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. COMPÁS -->
+  <section id="compas">
+    <div class="sec-label">05 — Compás</div>
+    <h2>Indicación de Compás</h2>
+    <p>Los dos números al inicio del pentagrama (después de la clave) te dicen <strong>cómo organizar los tiempos</strong>. El número de arriba indica cuántos tiempos hay por compás, y el de abajo qué figura vale un tiempo.</p>
+
+    <div class="ts-grid" id="tsGrid"></div>
+
+    <div class="callout">
+      <strong>Las barras de compás</strong> son las líneas verticales que dividen el pentagrama en secciones iguales. Cada sección es un compás, y dentro de cada compás cabe exactamente la cantidad de tiempos indicada.
+    </div>
+
+    <div class="music-sheet">
+      <svg viewBox="0 0 600 100" width="600">
+        <g stroke="#bdb4a7" stroke-width="1">
+          <line x1="20" y1="20" x2="580" y2="20"/>
+          <line x1="20" y1="35" x2="580" y2="35"/>
+          <line x1="20" y1="50" x2="580" y2="50"/>
+          <line x1="20" y1="65" x2="580" y2="65"/>
+          <line x1="20" y1="80" x2="580" y2="80"/>
+        </g>
+        <!-- Time sig -->
+        <text x="35" y="42" font-family="Playfair Display,serif" font-size="22" fill="#1a1714" text-anchor="middle">4</text>
+        <text x="35" y="72" font-family="Playfair Display,serif" font-size="22" fill="#1a1714" text-anchor="middle">4</text>
+        <!-- Bar lines -->
+        <line x1="60" y1="20" x2="60" y2="80" stroke="#bdb4a7" stroke-width="1"/>
+        <line x1="190" y1="20" x2="190" y2="80" stroke="#bdb4a7" stroke-width="1.5"/>
+        <line x1="320" y1="20" x2="320" y2="80" stroke="#bdb4a7" stroke-width="1.5"/>
+        <line x1="450" y1="20" x2="450" y2="80" stroke="#bdb4a7" stroke-width="1.5"/>
+        <!-- Double bar -->
+        <line x1="575" y1="20" x2="575" y2="80" stroke="#1a1714" stroke-width="1"/>
+        <line x1="580" y1="20" x2="580" y2="80" stroke="#1a1714" stroke-width="3"/>
+        <!-- Beat markers -->
+        <g font-family="DM Mono" font-size="8" fill="#c24d2c">
+          <text x="95" y="95">1</text>
+          <text x="120" y="95">2</text>
+          <text x="145" y="95">3</text>
+          <text x="170" y="95">4</text>
+        </g>
+        <!-- Labels -->
+        <text x="125" y="12" font-family="DM Mono" font-size="7" fill="#9e958a" text-anchor="middle">COMPÁS 1</text>
+        <text x="255" y="12" font-family="DM Mono" font-size="7" fill="#9e958a" text-anchor="middle">COMPÁS 2</text>
+        <text x="385" y="12" font-family="DM Mono" font-size="7" fill="#9e958a" text-anchor="middle">COMPÁS 3</text>
+        <text x="520" y="12" font-family="DM Mono" font-size="7" fill="#9e958a" text-anchor="middle">COMPÁS 4</text>
+        <text x="565" y="95" font-family="DM Mono" font-size="7" fill="#5c554a" text-anchor="middle">Doble barra (fin)</text>
+      </svg>
+      <div class="sheet-caption">Cuatro compases en 4/4 — cada compás contiene 4 tiempos</div>
+    </div>
+  </section>
+
+  <!-- 6. ALTERACIONES -->
+  <section id="alteraciones">
+    <div class="sec-label">06 — Alteraciones</div>
+    <h2>Sostenidos, Bemoles y Becuadros</h2>
+    <p>Las alteraciones modifican la altura de una nota. Son los símbolos que aparecen justo <strong>antes de una nota</strong> en el pentagrama y afectan a esa nota durante todo el compás.</p>
+
+    <div class="clef-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="clef-card">
+        <div class="clef-symbol" style="color:var(--accent);">♯</div>
+        <h3>Sostenido</h3>
+        <p>Sube la nota <strong>medio tono</strong>. Un Fa♯ es la tecla negra entre Fa y Sol.</p>
+      </div>
+      <div class="clef-card">
+        <div class="clef-symbol" style="color:var(--accent2);">♭</div>
+        <h3>Bemol</h3>
+        <p>Baja la nota <strong>medio tono</strong>. Un Si♭ es la tecla negra entre La y Si.</p>
+      </div>
+      <div class="clef-card">
+        <div class="clef-symbol" style="color:var(--accent3);">♮</div>
+        <h3>Becuadro</h3>
+        <p><strong>Cancela</strong> un sostenido o bemol previo y devuelve la nota a su estado natural.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Regla importante:</strong> Una alteración escrita antes de una nota afecta a todas las apariciones de esa misma nota durante el resto del compás. Al cruzar la barra de compás, la alteración se cancela automáticamente (a menos que esté en la armadura).
+    </div>
+  </section>
+
+  <!-- 7. ARMADURA -->
+  <section id="armadura">
+    <div class="sec-label">07 — Armadura de clave</div>
+    <h2>Armadura de Clave</h2>
+    <p>La armadura aparece al inicio del pentagrama, entre la clave y el compás. Son sostenidos o bemoles que <strong>se aplican automáticamente</strong> a ciertas notas durante toda la pieza. Indica en qué tonalidad estamos.</p>
+
+    <div class="keysig-container">
+      <div class="explorer-title">Explorador de tonalidades</div>
+      <div class="keysig-selector" id="keysigSelector"></div>
+      <div class="keysig-info">
+        <h3 id="ksName">Do Mayor / La menor</h3>
+        <div class="keysig-detail" id="ksDetail">Sin alteraciones</div>
+        <p id="ksDesc" style="max-width:400px; margin:0 auto;">La tonalidad más simple. Usa solo las teclas blancas del piano.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. DINÁMICAS -->
+  <section id="dinamicas">
+    <div class="sec-label">08 — Dinámicas</div>
+    <h2>Volumen y Expresión</h2>
+    <p>Las dinámicas te indican <strong>qué tan fuerte o suave</strong> tocar. Se escriben debajo del pentagrama con letras italianas. Van desde el pianississimo (extremadamente suave) hasta el fortississimo (extremadamente fuerte).</p>
+
+    <div class="dynamics-row" id="dynRow"></div>
+
+    <p style="margin-top:2rem;">Además de los niveles fijos, existen los <strong>reguladores</strong>: líneas en forma de cuña que indican crescendo (cada vez más fuerte: &lt;) o diminuendo (cada vez más suave: &gt;). Son transiciones graduales entre dinámicas.</p>
+
+    <div class="music-sheet">
+      <svg viewBox="0 0 500 60" width="500">
+        <!-- Crescendo -->
+        <line x1="30" y1="40" x2="200" y2="25" stroke="#1a1714" stroke-width="1.5" fill="none"/>
+        <line x1="30" y1="40" x2="200" y2="55" stroke="#1a1714" stroke-width="1.5" fill="none"/>
+        <text x="115" y="16" font-family="DM Mono" font-size="9" fill="#c24d2c" text-anchor="middle">crescendo</text>
+        <!-- Diminuendo -->
+        <line x1="280" y1="25" x2="460" y2="40" stroke="#1a1714" stroke-width="1.5" fill="none"/>
+        <line x1="280" y1="55" x2="460" y2="40" stroke="#1a1714" stroke-width="1.5" fill="none"/>
+        <text x="370" y="16" font-family="DM Mono" font-size="9" fill="#2c6e8c" text-anchor="middle">diminuendo</text>
+      </svg>
+      <div class="sheet-caption">Reguladores de dinámica</div>
+    </div>
+  </section>
+
+  <!-- 9. QUIZ -->
+  <section id="quiz">
+    <div class="sec-label">09 — Poné a prueba lo aprendido</div>
+    <h2>Mini Quiz</h2>
+    <p>Respondé estas preguntas para consolidar lo que acabás de aprender. No te preocupes si errás — aprender es el objetivo.</p>
+
+    <div class="quiz-box" id="quizBox">
+      <div class="quiz-question" id="quizQ"></div>
+      <div class="quiz-options" id="quizOpts"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-next" id="quizNext">Siguiente →</button>
+      <div class="quiz-score" id="quizScore"></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p class="sig">La música es el lenguaje del espíritu</p>
+  <p>Guía interactiva de lectura de partituras</p>
+</footer>
+
+<script>
+// === SCROLL REVEAL ===
+const sections = document.querySelectorAll('section');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+sections.forEach(s => observer.observe(s));
+
+// === NAV ACTIVE ===
+const tocLinks = document.querySelectorAll('.toc a');
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+sections.forEach(s => navObs.observe(s));
+
+// === INTERACTIVE STAFF ===
+const staffPositions = [
+  { y: 10, note: 'La5 (A5)', ledger: 'ledgerAbove2' },
+  { y: 17.5, note: 'Sol5 (G5)', ledger: 'ledgerAbove' },
+  { y: 25, note: 'Fa5 (F5)', ledger: 'ledgerAbove' },
+  { y: 32.5, note: 'Mi5 (E5)' },
+  { y: 40, note: 'Re5 (D5)' },
+  { y: 47.5, note: 'Do5 (C5)' },
+  { y: 55, note: 'Si4 (B4)' },
+  { y: 62.5, note: 'La4 (A4)' },
+  { y: 70, note: 'Sol4 (G4)' },
+  { y: 77.5, note: 'Fa4 (F4)' },
+  { y: 85, note: 'Mi4 (E4)' },
+  { y: 92.5, note: 'Re4 (D4)' },
+  { y: 100, note: 'Do4 (C4) — Do central' },
+  { y: 107.5, note: 'Si3 (B3)', ledger: 'ledgerBelow' },
+  { y: 115, note: 'La3 (A3)', ledger: 'ledgerBelow' },
+  { y: 122.5, note: 'Sol3 (G3)', ledger: 'ledgerBelow2' },
+  { y: 130, note: 'Fa3 (F3)', ledger: 'ledgerBelow2' },
+];
+
+document.getElementById('staffClickArea').addEventListener('click', function(e) {
+  const svg = document.getElementById('interactiveStaff');
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+  let closest = staffPositions[0], minDist = Infinity;
+  staffPositions.forEach(p => {
+    const d = Math.abs(svgP.y - p.y);
+    if (d < minDist) { minDist = d; closest = p; }
+  });
+
+  // Hide all ledger lines
+  ['ledgerAbove','ledgerAbove2','ledgerBelow','ledgerBelow2'].forEach(id => {
+    document.getElementById(id).setAttribute('opacity', '0');
+  });
+
+  // Show relevant ledger
+  if (closest.ledger) {
+    document.getElementById(closest.ledger).setAttribute('opacity', '1');
+    // For notes that need both ledger lines
+    if (closest.y <= 17.5) document.getElementById('ledgerAbove').setAttribute('opacity', '1');
+    if (closest.y >= 122.5) document.getElementById('ledgerBelow').setAttribute('opacity', '1');
+  }
+  if (closest.y === 100) document.getElementById('ledgerBelow').setAttribute('opacity', '1');
+
+  const note = document.getElementById('staffNote');
+  note.setAttribute('cy', closest.y);
+  note.setAttribute('opacity', '1');
+  document.getElementById('staffNoteLabel').textContent = closest.note;
+});
+
+// === NOTE EXPLORER ===
+const figuras = [
+  { name: 'Redonda', dur: '4 tiempos', beats: 4, desc: 'La más larga en uso común. Cabeza hueca, sin plica.', svg: `<svg viewBox="0 0 60 80" width="60"><ellipse cx="30" cy="40" rx="12" ry="8" fill="none" stroke="#1a1714" stroke-width="2.5"/></svg>` },
+  { name: 'Blanca', dur: '2 tiempos', beats: 2, desc: 'Cabeza hueca con plica (tallo vertical). Dura la mitad de una redonda.', svg: `<svg viewBox="0 0 60 80" width="60"><ellipse cx="26" cy="50" rx="10" ry="7" fill="none" stroke="#1a1714" stroke-width="2.5" transform="rotate(-10,26,50)"/><line x1="35" y1="50" x2="35" y2="12" stroke="#1a1714" stroke-width="2"/></svg>` },
+  { name: 'Negra', dur: '1 tiempo', beats: 1, desc: 'Cabeza rellena con plica. Es la unidad de tiempo más común en 4/4.', svg: `<svg viewBox="0 0 60 80" width="60"><ellipse cx="26" cy="50" rx="10" ry="7" fill="#1a1714" transform="rotate(-10,26,50)"/><line x1="35" y1="50" x2="35" y2="12" stroke="#1a1714" stroke-width="2"/></svg>` },
+  { name: 'Corchea', dur: '½ tiempo', beats: 0.5, desc: 'Cabeza rellena + plica + un corchete (banderita). Dos corcheas = una negra.', svg: `<svg viewBox="0 0 60 80" width="60"><ellipse cx="26" cy="50" rx="10" ry="7" fill="#1a1714" transform="rotate(-10,26,50)"/><line x1="35" y1="50" x2="35" y2="12" stroke="#1a1714" stroke-width="2"/><path d="M35 12 Q45 20 38 32" fill="none" stroke="#1a1714" stroke-width="2"/></svg>` },
+  { name: 'Semicorchea', dur: '¼ tiempo', beats: 0.25, desc: 'Como la corchea pero con dos corchetes. Cuatro semicorcheas = una negra.', svg: `<svg viewBox="0 0 60 80" width="60"><ellipse cx="26" cy="50" rx="10" ry="7" fill="#1a1714" transform="rotate(-10,26,50)"/><line x1="35" y1="50" x2="35" y2="12" stroke="#1a1714" stroke-width="2"/><path d="M35 12 Q45 20 38 28" fill="none" stroke="#1a1714" stroke-width="2"/><path d="M35 19 Q45 27 38 35" fill="none" stroke="#1a1714" stroke-width="2"/></svg>` },
+];
+
+const noteTabs = document.getElementById('noteTabs');
+figuras.forEach((f, i) => {
+  const tab = document.createElement('button');
+  tab.className = 'note-tab' + (i === 0 ? ' active' : '');
+  tab.textContent = f.name;
+  tab.addEventListener('click', () => selectFigura(i));
+  noteTabs.appendChild(tab);
+});
+
+function selectFigura(idx) {
+  const f = figuras[idx];
+  document.querySelectorAll('.note-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.getElementById('noteVisual').innerHTML = f.svg;
+  document.getElementById('noteName').textContent = f.name;
+  document.getElementById('noteDuration').textContent = f.dur;
+  document.getElementById('noteDesc').textContent = f.desc;
+
+  const beatVis = document.getElementById('beatVis');
+  beatVis.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const block = document.createElement('div');
+    block.className = 'beat-block';
+    if (f.beats >= 1 && i < f.beats) block.classList.add('filled');
+    else if (f.beats === 0.5 && i === 0) block.classList.add('half-filled');
+    else if (f.beats === 0.25 && i === 0) block.classList.add('half-filled');
+    beatVis.appendChild(block);
+  }
+}
+selectFigura(0);
+
+// === TIME SIGNATURES ===
+const timeSigs = [
+  { top: 4, bottom: 4, name: '4/4 — Compasillo', desc: '4 tiempos por compás. El más común en música popular y clásica.' },
+  { top: 3, bottom: 4, name: '3/4 — Vals', desc: '3 tiempos por compás. El ritmo del vals: UN-dos-tres.' },
+  { top: 2, bottom: 4, name: '2/4 — Marcha', desc: '2 tiempos por compás. Común en marchas y polkas.' },
+  { top: 6, bottom: 8, name: '6/8 — Compuesto', desc: '6 corcheas agrupadas en 2 grupos de 3. Sensación balanceada.' },
+];
+
+const tsGrid = document.getElementById('tsGrid');
+timeSigs.forEach(ts => {
+  const card = document.createElement('div');
+  card.className = 'ts-card';
+  card.innerHTML = `
+    <div class="ts-num">${ts.top}</div>
+    <div class="ts-line"></div>
+    <div class="ts-num">${ts.bottom}</div>
+    <div class="ts-name">${ts.name}</div>
+    <div class="ts-desc">${ts.desc}</div>
+  `;
+  tsGrid.appendChild(card);
+});
+
+// === DYNAMICS ===
+const dynamics = [
+  { sym: 'ppp', name: 'Pianississimo', level: 8 },
+  { sym: 'pp', name: 'Pianissimo', level: 18 },
+  { sym: 'p', name: 'Piano', level: 30 },
+  { sym: 'mp', name: 'Mezzo piano', level: 45 },
+  { sym: 'mf', name: 'Mezzo forte', level: 58 },
+  { sym: 'f', name: 'Forte', level: 72 },
+  { sym: 'ff', name: 'Fortissimo', level: 86 },
+  { sym: 'fff', name: 'Fortississimo', level: 100 },
+];
+
+const dynRow = document.getElementById('dynRow');
+dynamics.forEach(d => {
+  const item = document.createElement('div');
+  item.className = 'dyn-item';
+  item.innerHTML = `
+    <div class="dyn-symbol">${d.sym}</div>
+    <div class="dyn-name">${d.name}</div>
+    <div class="dyn-bar"><div class="dyn-fill" style="width:${d.level}%"></div></div>
+  `;
+  dynRow.appendChild(item);
+});
+
+// === KEY SIGNATURES ===
+const keySigs = [
+  { label: 'C', name: 'Do Mayor / La menor', detail: 'Sin alteraciones', desc: 'La tonalidad más simple. Solo teclas blancas.' },
+  { label: 'G', name: 'Sol Mayor / Mi menor', detail: '1 sostenido: F♯', desc: 'Muy común en guitarra y música folk.' },
+  { label: 'D', name: 'Re Mayor / Si menor', detail: '2 sostenidos: F♯, C♯', desc: 'Brillante y alegre. Popular en música orquestal.' },
+  { label: 'A', name: 'La Mayor / Fa♯ menor', detail: '3 sostenidos: F♯, C♯, G♯', desc: 'Cálida y resonante. Muchas sonatas clásicas.' },
+  { label: 'E', name: 'Mi Mayor / Do♯ menor', detail: '4 sostenidos: F♯, C♯, G♯, D♯', desc: 'Usada en la Moonlight Sonata (su relativa menor).' },
+  { label: 'F', name: 'Fa Mayor / Re menor', detail: '1 bemol: B♭', desc: 'Pastoral y serena. Común en música para vientos.' },
+  { label: 'B♭', name: 'Si♭ Mayor / Sol menor', detail: '2 bemoles: B♭, E♭', desc: 'Tonalidad natural de clarinete y trompeta en Si♭.' },
+  { label: 'E♭', name: 'Mi♭ Mayor / Do menor', detail: '3 bemoles: B♭, E♭, A♭', desc: 'Heroica. Beethoven la usó en la Eroica.' },
+  { label: 'A♭', name: 'La♭ Mayor / Fa menor', detail: '4 bemoles: B♭, E♭, A♭, D♭', desc: 'Rica y oscura. Chopin la adoraba.' },
+];
+
+const ksSel = document.getElementById('keysigSelector');
+keySigs.forEach((ks, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'ks-btn' + (i === 0 ? ' ks-active' : '');
+  btn.textContent = ks.label;
+  btn.addEventListener('click', () => selectKeySig(i));
+  ksSel.appendChild(btn);
+});
+
+function selectKeySig(idx) {
+  const ks = keySigs[idx];
+  document.querySelectorAll('.ks-btn').forEach((b, i) => b.classList.toggle('ks-active', i === idx));
+  document.getElementById('ksName').textContent = ks.name;
+  document.getElementById('ksDetail').textContent = ks.detail;
+  document.getElementById('ksDesc').textContent = ks.desc;
+}
+
+// === QUIZ ===
+const questions = [
+  { q: '¿Cuántas líneas tiene un pentagrama?', opts: ['4', '5', '6', '7'], correct: 1 },
+  { q: '¿Qué clave se usa para notas agudas?', opts: ['Clave de Fa', 'Clave de Do', 'Clave de Sol', 'Clave de Re'], correct: 2 },
+  { q: '¿Cuántos tiempos dura una blanca?', opts: ['1 tiempo', '2 tiempos', '3 tiempos', '4 tiempos'], correct: 1 },
+  { q: '¿Qué hace un sostenido (♯)?', opts: ['Baja medio tono', 'Sube medio tono', 'Cancela alteraciones', 'Sube un tono'], correct: 1 },
+  { q: '¿Qué indica el número de arriba en 3/4?', opts: ['Tipo de figura', '3 tiempos por compás', 'Tempo', '3 compases'], correct: 1 },
+  { q: '¿Qué significa "pp"?', opts: ['Fortissimo', 'Piano', 'Pianissimo', 'Mezzo piano'], correct: 2 },
+  { q: '¿Cuántas corcheas caben en una negra?', opts: ['1', '2', '3', '4'], correct: 1 },
+  { q: '¿Qué símbolo cancela un sostenido o bemol?', opts: ['Doble sostenido', 'Bemol', 'Becuadro (♮)', 'Silencio'], correct: 2 },
+  { q: 'Sol Mayor tiene...', opts: ['1 bemol', '2 sostenidos', '1 sostenido', 'Sin alteraciones'], correct: 2 },
+  { q: '¿Qué dinámica es más fuerte: f o mf?', opts: ['mf', 'f', 'Son iguales', 'Depende'], correct: 1 },
+];
+
+let quizIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  if (quizIdx >= questions.length) {
+    document.getElementById('quizQ').textContent = `¡Terminaste! Puntuación: ${score}/${questions.length}`;
+    document.getElementById('quizOpts').innerHTML = '';
+    document.getElementById('quizFeedback').textContent = score >= 7 ? '¡Excelente! Estás listo para leer partituras.' : score >= 4 ? '¡Buen trabajo! Repasá las secciones donde fallaste.' : 'No te preocupes, releé la guía y volvé a intentar.';
+    document.getElementById('quizNext').style.display = 'none';
+    document.getElementById('quizScore').textContent = '';
+    return;
+  }
+
+  const q = questions[quizIdx];
+  answered = false;
+  document.getElementById('quizQ').textContent = q.q;
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizNext').style.display = 'none';
+  document.getElementById('quizScore').textContent = `Pregunta ${quizIdx + 1} de ${questions.length}`;
+
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      if (i === q.correct) {
+        btn.classList.add('correct');
+        document.getElementById('quizFeedback').textContent = '¡Correcto!';
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        opts.children[q.correct].classList.add('correct');
+        document.getElementById('quizFeedback').textContent = 'Incorrecto. La respuesta correcta está marcada en verde.';
+      }
+      Array.from(opts.children).forEach((b, j) => { if (j !== i && j !== q.correct) b.classList.add('disabled'); });
+      document.getElementById('quizNext').style.display = 'inline-block';
+    });
+    opts.appendChild(btn);
+  });
+}
+
+document.getElementById('quizNext').addEventListener('click', () => { quizIdx++; renderQuiz(); });
+renderQuiz();
+</script>
+
+</body>
+</html>
